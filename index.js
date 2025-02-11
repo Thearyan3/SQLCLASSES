@@ -33,7 +33,7 @@ app.get("/", (req, res) => {
     connection.query(q, (err, result) => {
       if (err) throw err;
       let count = result[0]["count(*)"];
-      res.send("home.ejs" ,{count});
+      res.render("home.ejs" ,{count});
     });
   }catch (err) {
     console.log(err);
@@ -73,30 +73,32 @@ app.get("/user/:id/edit", (req, res) => {
 
 //UPDATE (DB) ROUTE
 app.patch("/user/:id", (req, res) => {
-  let {id} = req.params;
-  let {password : formpass, username : newUsername} = req.body;
+  let { id } = req.params;
+  let {password: formPass, newusername: newUserName} = req.body;
   let q = `SELECT * FROM user WHERE id='${id}'`;
-  try{
+  try {
     connection.query(q, (err, result) => {
       if (err) throw err;
       let user = result[0];
-      if(formpass != user.password){
-        res.send("WRONG PASSWORD");
-      }else{
-        let q2 = `UPDATE user SET username=${newUsername} WHERE id='${id}'`;
+      if (formPass != user.password) {
+        res.send("Wrong Password");
+      } else {
+        let q2 = `UPDATE user SET username='${newUserName}' WHERE id='${id}'`;
         connection.query(q2, (err, result) => {
-          if(err) throw err;
-          res.redirect("/user");
+          if (err) throw err;
+          if (result) {
+            res.redirect("/user");
+          } else {
+            res.json({"error":"error","message":"Something went wrong!"});
+          }
         });
       }
-      res.send(user);
     });
-  }catch (err) {
+  } catch (err) {
     console.log(err);
-    res.send("some error in DB");
   }
 });
 
-app.listen("8080", () => {
-  console.log("Server is listening to the port 8080");
+app.listen("3000", () => {
+  console.log("Server is listening to the port 3000");
 });
